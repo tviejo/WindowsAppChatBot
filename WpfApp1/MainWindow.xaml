@@ -1,15 +1,123 @@
 ﻿<Window x:Class="WpfApp1.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp1"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Button x:Name="Button1" Content="Color Switch" HorizontalAlignment="Left" Margin="591,295,0,0" VerticalAlignment="Top" Height="60" Width="117" Click="StoredInputText" />
-        <TextBox x:Name="TextInput" HorizontalAlignment="Left" Height="60" Margin="89,295,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="497"/>
-        <TextBlock x:Name="textOutput" HorizontalAlignment="Left" Height="243" Margin="89,47,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="619" RenderTransformOrigin="0.493,0.305"/>
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Modern Chat UI"
+        Height="700"
+        Width="900"
+        Background="{DynamicResource MaterialDesignBackground}"
+        WindowStartupLocation="CenterScreen">
 
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <ComboBox x:Name="ModelSelector"
+                      Width="150"
+                      Height="30"
+                      VerticalAlignment="Center"
+                      Margin="0,0,10,0"
+                      Padding="5"
+                      FontSize="14"
+                      Foreground="{DynamicResource MaterialDesignBody}"
+                      Background="{DynamicResource MaterialDesignBackground}"
+                      BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                      BorderThickness="1"
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      SelectedIndex="0">
+                <ComboBoxItem Content="gpt-4o-mini" />
+                <ComboBoxItem Content="gpt-4o-latest" />
+                <ComboBoxItem Content="gpt-4o" />
+                <ComboBoxItem Content="o1-mini" />
+                <ComboBoxItem Content="o1" />
+                <ComboBoxItem Content="o3-mini" />
+                <ComboBoxItem Content="o1-preview" />
+                <ComboBoxItem Content="gpt-3.5-turbo" />
+                <ComboBoxItem Content="claude-3-5-sonnet" />
+            </ComboBox>
+
+            <TextBlock Grid.Column="1" />
+
+            <ToggleButton x:Name="ThemeToggle"
+                          Grid.Column="2"
+                          Width="60"
+                          Height="30"
+                          VerticalAlignment="Center"
+                          Margin="10,0,0,0"
+                          Content="Dark"
+                          Click="ThemeToggle_Click"
+                          Style="{StaticResource MaterialDesignSwitchToggleButton}" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      Background="{DynamicResource MaterialDesignCardBackground}"
+                      Padding="20"
+                      BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                      BorderThickness="1"
+                      Margin="0,0,0,20">
+            <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                    CornerRadius="15"
+                    Padding="0"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth2">
+                <RichTextBox x:Name="TextOutput"
+                             IsReadOnly="True"
+                             BorderThickness="0"
+                             Padding="15"
+                             FontSize="16"
+                             Foreground="{DynamicResource MaterialDesignBody}"
+                             Background="{DynamicResource MaterialDesignCardBackground}">
+                    <FlowDocument>
+                        <Paragraph>
+                            <Run Text="Welcome to Windows AI Chat" />
+                        </Paragraph>
+                    </FlowDocument>
+                </RichTextBox>
+            </Border>
+        </ScrollViewer>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBox x:Name="TextInput"
+                     Grid.Column="0"
+                     MinHeight="50"
+                     Margin="0,0,20,0"
+                     FontSize="16"
+                     Padding="15"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Background="{DynamicResource MaterialDesignBackground}"
+                     Foreground="{DynamicResource MaterialDesignBody}"
+                     BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                     BorderThickness="1" />
+
+            <Button x:Name="SendButton"
+                    Grid.Column="1"
+                    Content="Send"
+                    Width="120"
+                    Height="50"
+                    FontSize="16"
+                    Click="StoredInputText"
+                    Background="{DynamicResource PrimaryHueMidBrush}"
+                    Foreground="White"
+                    FontWeight="Bold"
+                    BorderThickness="0"
+                    Padding="10"
+                    materialDesign:ButtonAssist.CornerRadius="15"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+        </Grid>
     </Grid>
 </Window>
