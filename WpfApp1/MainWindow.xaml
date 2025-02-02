@@ -7,7 +7,6 @@
         Width="900"
         Background="{DynamicResource MaterialDesignBackground}"
         WindowStartupLocation="CenterScreen">
-
     <Grid Margin="30">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -18,99 +17,87 @@
         <Grid Grid.Row="0" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <ComboBox x:Name="ModelSelector"
-                      Width="150"
-                      Height="30"
-                      VerticalAlignment="Center"
-                      Margin="0,0,10,0"
-                      Padding="5"
-                      FontSize="14"
-                      Foreground="{DynamicResource MaterialDesignBody}"
-                      Background="{DynamicResource MaterialDesignBackground}"
-                      BorderBrush="{DynamicResource PrimaryHueMidBrush}"
-                      BorderThickness="1"
-                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                      SelectedIndex="0">
-                <ComboBoxItem Content="gpt-4o-mini" />
-                <ComboBoxItem Content="gpt-4o-latest" />
-                <ComboBoxItem Content="gpt-4o" />
-                <ComboBoxItem Content="o1-mini" />
-                <ComboBoxItem Content="o1" />
-                <ComboBoxItem Content="o3-mini" />
-                <ComboBoxItem Content="o1-preview" />
-                <ComboBoxItem Content="gpt-3.5-turbo" />
-                <ComboBoxItem Content="claude-3-5-sonnet" />
-            </ComboBox>
-
+            <TextBlock Grid.Column="0" />
             <TextBlock Grid.Column="1" />
+            <TextBlock Grid.Column="2" />
 
             <ToggleButton x:Name="ThemeToggle"
-                          Grid.Column="2"
-                          Width="60"
-                          Height="30"
+                          Grid.Column="3"
+                          Width="100"
+                          Height="40"
                           VerticalAlignment="Center"
                           Margin="10,0,0,0"
-                          Content="Dark"
+                          FontWeight="Bold"
                           Click="ThemeToggle_Click"
-                          Style="{StaticResource MaterialDesignSwitchToggleButton}" />
+                          BorderThickness="0">
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid>
+                            <Border x:Name="BackgroundBorder"
+                                    CornerRadius="20"
+                                    Background="LightGray"
+                                    BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                                    BorderThickness="1" />
+                            <Ellipse x:Name="ToggleCircle"
+                                     Width="32"
+                                     Height="32"
+                                     Fill="Orange"
+                                     HorizontalAlignment="Left"
+                                     Margin="4,0" />
+                            <TextBlock x:Name="ToggleText"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Text="Light"
+                                       Foreground="Black"
+                                       FontWeight="Bold" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="BackgroundBorder" Property="Background" Value="DarkGray" />
+                                <Setter TargetName="ToggleCircle" Property="Fill" Value="White" />
+                                <Setter TargetName="ToggleCircle" Property="HorizontalAlignment" Value="Right" />
+                                <Setter TargetName="ToggleText" Property="Text" Value="Dark" />
+                                <Setter TargetName="ToggleText" Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="BackgroundBorder" Property="Background" Value="LightGray" />
+                                <Setter TargetName="ToggleCircle" Property="Fill" Value="Orange" />
+                                <Setter TargetName="ToggleCircle" Property="HorizontalAlignment" Value="Left" />
+                                <Setter TargetName="ToggleText" Property="Text" Value="Light" />
+                                <Setter TargetName="ToggleText" Property="Foreground" Value="Black" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
         </Grid>
 
-        <ScrollViewer Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto"
-                      Background="{DynamicResource MaterialDesignCardBackground}"
-                      Padding="20"
-                      BorderBrush="{DynamicResource PrimaryHueMidBrush}"
-                      BorderThickness="1"
-                      Margin="0,0,0,20">
-            <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                    CornerRadius="15"
-                    Padding="0"
-                    materialDesign:ShadowAssist.ShadowDepth="Depth2">
-                <RichTextBox x:Name="TextOutput"
-                             IsReadOnly="True"
-                             BorderThickness="0"
-                             Padding="15"
-                             FontSize="16"
-                             Foreground="{DynamicResource MaterialDesignBody}"
-                             Background="{DynamicResource MaterialDesignCardBackground}">
-                    <FlowDocument>
-                        <Paragraph>
-                            <Run Text="Welcome to Windows AI Chat" />
-                        </Paragraph>
-                    </FlowDocument>
-                </RichTextBox>
-            </Border>
-        </ScrollViewer>
-
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <TextBox x:Name="TextInput"
-                     Grid.Column="0"
-                     MinHeight="50"
-                     Margin="0,0,20,0"
-                     FontSize="16"
-                     Padding="15"
-                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                     Background="{DynamicResource MaterialDesignBackground}"
-                     Foreground="{DynamicResource MaterialDesignBody}"
-                     BorderBrush="{DynamicResource PrimaryHueMidBrush}"
-                     BorderThickness="1" />
-
-            <Button x:Name="SendButton"
-                    Grid.Column="1"
-                    Content="Send"
-                    Width="120"
+        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Height="213" >
+            <Button x:Name="ComparisonsButton"
+                    Content="Comparisons"
+                    Width="200"
                     Height="50"
                     FontSize="16"
-                    Click="StoredInputText"
+                    Click="ComparisonsButton_Click"
+                    Background="{DynamicResource PrimaryHueMidBrush}"
+                    Foreground="White"
+                    FontWeight="Bold"
+                    BorderThickness="0"
+                    Padding="10"
+                    Margin="0,0,0,20"
+                    materialDesign:ButtonAssist.CornerRadius="15"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+            <Button x:Name="ChatbotButton"
+                    Content="Chatbot"
+                    Width="200"
+                    Height="50"
+                    FontSize="16"
+                    Click="ChatbotButton_Click"
                     Background="{DynamicResource PrimaryHueMidBrush}"
                     Foreground="White"
                     FontWeight="Bold"
@@ -118,6 +105,8 @@
                     Padding="10"
                     materialDesign:ButtonAssist.CornerRadius="15"
                     Style="{StaticResource MaterialDesignRaisedButton}" />
-        </Grid>
+        </StackPanel>
+
+        <Grid Grid.Row="2" />
     </Grid>
 </Window>

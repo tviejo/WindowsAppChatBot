@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -44,19 +45,11 @@ namespace WpfApp1
 
             _conversationHistory.Add(new ChatMessage { Role = "user", Content = text });
 
-            var sbPrompt = new StringBuilder();
-            foreach (var msg in _conversationHistory)
-            {
-                sbPrompt.AppendLine($"{msg.Role}: {msg.Content}");
-            }
-
-            var requestUri = "https://api.mistralai.com/v1/generate";
-
             var requestBody = new
             {
-                model = model,           
-                prompt = sbPrompt.ToString(),
-                max_tokens = 500,        
+                model = model,
+                messages = _conversationHistory.Select(msg => new { role = msg.Role, content = msg.Content }).ToList(),
+                max_tokens = 500,
                 temperature = 0.7
             };
 
@@ -67,6 +60,7 @@ namespace WpfApp1
 
             try
             {
+                var requestUri = "https://api.mistral.ai/v1/chat/completions";
                 var response = await client.PostAsync(requestUri, content);
                 var responseBody = await response.Content.ReadAsStringAsync();
 
@@ -74,11 +68,11 @@ namespace WpfApp1
                 {
                     dynamic errorResponse = JsonConvert.DeserializeObject(responseBody);
                     return $"Error: API request failed with status code {response.StatusCode}. " +
-                           $"Message: {errorResponse?.error ?? responseBody}";
+                           $"Message: {errorResponse?.detail ?? responseBody}";
                 }
 
                 dynamic jsonResponse = JsonConvert.DeserializeObject(responseBody);
-                string mistralReply = jsonResponse?.completion;
+                string mistralReply = jsonResponse?.choices[0]?.message?.content;
 
                 if (string.IsNullOrEmpty(mistralReply))
                 {

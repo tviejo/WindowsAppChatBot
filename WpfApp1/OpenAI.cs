@@ -42,14 +42,12 @@ namespace WpfApp1
                 return "Error: Input text cannot be empty.";
             }
 
-            // Add the new user message to the history
             _conversationHistory.Add(new ChatMessage { role = "user", content = text });
 
             var requestUri = "https://api.openai.com/v1/chat/completions";
 
             object requestBody;
 
-            //if model start with o use max_completion_tokens instead of max_tokens
             if (model.StartsWith("o"))
             {
                 requestBody = new
@@ -83,7 +81,6 @@ namespace WpfApp1
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    // Log the error with the status code and only the message from the response body
                     dynamic errorResponse = JsonConvert.DeserializeObject(responseBody);
                     return $"Error: API request failed with status code {response.StatusCode}. Response: {errorResponse?.error?.message}";
                 }
