@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -13,36 +14,26 @@ namespace WpfApp1
         private static readonly HttpClient client = new HttpClient();
         private readonly string _apiKey;
 
-        private readonly List<ChatMessage> _conversationHistory = new List<ChatMessage>();
-
         public OpenAiService(string apiKey)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
-            {
                 throw new ArgumentException("API key cannot be null or empty.");
-            }
             _apiKey = apiKey;
         }
+        /// Envoie la conversation complète à OpenAI.
+        /// </summary>
 
-        private class ChatMessage
+        /// <summary>
+        public async Task<string> GetOpenAiResponse(List<ConversationMessage> conversationHistory, string model)
         {
-            public string role { get; set; }
-            public string content { get; set; }
-        }
-
-        public void ClearConversation()
-        {
-            _conversationHistory.Clear();
-        }
-
-        public async Task<string> GetOpenAiResponse(string text, string model)
-        {
-            if (string.IsNullOrWhiteSpace(text))
+            if (conversationHistory == null || conversationHistory.Count == 0)
             {
-                return "Error: Input text cannot be empty.";
+                return "Error: Conversation history is empty.";
             }
 
-            _conversationHistory.Add(new ChatMessage { role = "user", content = text });
+            var messages = conversationHistory
+                .Select(m => new { role = m.Role.ToLowerInvariant(), content = m.Content })
+                .ToList();
 
             var requestUri = "https://api.openai.com/v1/chat/completions";
 
@@ -53,7 +44,7 @@ namespace WpfApp1
                 requestBody = new
                 {
                     model = model,
-                    messages = _conversationHistory,
+                    messages = messages,
                     max_completion_tokens = 500,
                     temperature = 1
                 };
@@ -63,20 +54,24 @@ namespace WpfApp1
                 requestBody = new
                 {
                     model = model,
-                    messages = _conversationHistory,
+                    messages = messages,
                     max_tokens = 500,
                     temperature = 0.7
                 };
             }
 
             var jsonRequestBody = JsonConvert.SerializeObject(requestBody);
-            var content = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
+            {
+                Content = httpContent
+            };
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
 
             try
             {
-                var response = await client.PostAsync(requestUri, content);
+                var response = await client.SendAsync(request);
                 var responseBody = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
@@ -92,8 +87,6 @@ namespace WpfApp1
                 {
                     return "Error: Unexpected response format.";
                 }
-
-                _conversationHistory.Add(new ChatMessage { role = "assistant", content = assistantReply });
 
                 return assistantReply;
             }

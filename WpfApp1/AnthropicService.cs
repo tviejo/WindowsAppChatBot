@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace WpfApp1
 {
+    // A simple conversation message model.
+
     public class AnthropicService
     {
         private static readonly HttpClient client = new HttpClient();
         private readonly string _apiKey;
-        private readonly List<ChatMessage> _conversationHistory = new List<ChatMessage>();
-
-        private class ChatMessage
-        {
-            public string Role { get; set; }
-            public string Content { get; set; }
-        }
 
         public AnthropicService(string apiKey)
         {
@@ -26,47 +22,47 @@ namespace WpfApp1
             _apiKey = apiKey;
         }
 
-        public void ClearConversation()
+        public async Task<string> GetAnthropicResponse(List<ConversationMessage> conversationHistory, string model)
         {
-            _conversationHistory.Clear();
-        }
-
-        public async Task<string> GetAnthropicResponse(string text, string model)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return "Error: Input text cannot be empty.";
-
-            _conversationHistory.Add(new ChatMessage { Role = "user", Content = text });
-
-            var messageList = new List<object>();
-            foreach (var msg in _conversationHistory)
+            if (conversationHistory == null || conversationHistory.Count == 0)
             {
-                messageList.Add(new { role = msg.Role, content = msg.Content });
+                return "Error: Conversation history is empty.";
+            }
+
+            // Convert the conversation history into the format expected by the API.
+            var messages = new List<object>();
+            foreach (var msg in conversationHistory)
+            {
+                // Optionally convert role to lowercase if required by the API.
+                messages.Add(new { role = msg.Role.ToLowerInvariant(), content = msg.Content });
             }
 
             var requestUri = "https://api.anthropic.com/v1/messages";
+            // Build the request body. You can adjust max_tokens, temperature, etc.
             var requestBody = new
             {
-                model = "claude-3-5-sonnet-20241022",
-                messages = messageList,
-                max_tokens = 1024
+                model = model,
+                messages = messages,
+                max_tokens = 1024,
+                temperature = 0.7
             };
 
             var jsonRequestBody = JsonConvert.SerializeObject(requestBody);
-            var content = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
 
+            // Clear any existing headers and set the ones needed for Anthropics.
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("x-api-key", _apiKey);
             client.DefaultRequestHeaders.Add("anthropic-version", "2023-06-01");
 
             try
             {
-                var response = await client.PostAsync(requestUri, content);
+                var response = await client.PostAsync(requestUri, httpContent);
                 var responseBody = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorResponse = JsonConvert.DeserializeObject<dynamic>(responseBody);
+                    dynamic errorResponse = JsonConvert.DeserializeObject(responseBody);
                     return $"Error: API request failed with status code {response.StatusCode}. Message: {errorResponse?.error?.message ?? responseBody}";
                 }
 
@@ -74,10 +70,8 @@ namespace WpfApp1
                 if (jsonResponse == null || jsonResponse.Content == null || jsonResponse.Content.Count == 0)
                     return "Error: Unexpected response format or empty completion.";
 
-                var assistantReply = jsonResponse.Content[0].Text;
-                _conversationHistory.Add(new ChatMessage { Role = "assistant", Content = assistantReply });
-
-                return assistantReply;
+                // Return the text from the first message in the content list.
+                return jsonResponse.Content[0].Text;
             }
             catch (HttpRequestException e)
             {
@@ -97,6 +91,7 @@ namespace WpfApp1
             }
         }
 
+        // Internal classes to map the Anthropich API response.
         private class AnthropicResponse
         {
             [JsonProperty("content")]
